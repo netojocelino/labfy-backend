@@ -3,70 +3,40 @@
 
 class Card
 {
-    private $table = "cards";
-    private $primary = "card_id";
+    public $card_id;
+    public $title = "";
+    public $list_state = "";
+    public $content = "";
+    public $label = "";
+    public $created_by = "";
 
-
-    /*
-    
-	[ ] $router->get('/', "CardController@list");
-	[ ] $router->delete('/{id}', "CardController@done");
-	[ ] $router->post('/', "CardController@new");
-	[ ] $router->put('/{id}/move', "CardController@move");
-    
-    */
-
-    
-    public function insert($params = array()) {
-        $bind = $this->binder($params);
-
-        $query = "INSERT INTO `$this->table` ($bind->columns) VALUES ($bind->stringColumns)";
-
-        
-        $statements = $this->connection->prepare(
-            $query
-        );
-
-        return json_encode($statements->execute($bind->bind));
+    public function __construct($dados){
+        if( $dados["card_id"] )
+            $this->card_id = $dados["card_id"];
+        $this->title = $dados["title"];
+        $this->list_state = $dados["list_state"] ?? $this->list_state;
+        $this->content = $dados["content"];
+        $this->label = $dados["label"] ?? $this->label;
+        $this->created_by = $dados["created_by"];
     }
 
-    public function select($fields = "*", $conditions = array()) {
-        
-        $query = "SELECT $fields FROM `$this->table`";
-        
-        if(isset($conditions['where'])){
-            $wheres = implode(" and ", $conditions['where']);
-            $query .= "WHERE ($wheres)";
-        }
-        
-        $statements = $this->connection->prepare(
-            $query
-        ) or die("erro em statements");
+    public function metadata() {
+        $show = [
+        ];
+        if( $this->card_id != null)
+            $show["card_id"] = $this->card_id;
+        if( $this->title != "")
+            $show["title"] = $this->title;
+        if( $this->list_state != "")
+            $show["list_state"] = $this->list_state;
+        if( $this->content != "")
+            $show["content"] = $this->content;
+        if( $this->label != "")
+            $show["label"] = $this->label;
+        if( $this->created_by != "")
+            $show["created_by"] = $this->created_by;
 
-        $result = $statements->fetch();
-        return($result);
-    }
-
-    public function update($params, $conditions = array()) {
-        return;
-        $bind = $this->binder($conditions);
-        $query = "UPDATE `$this->table` SET $bind->";
-        
-        if(isset($conditions['where'])){
-            $wheres = implode(" and ", $conditions['where']);
-            $query .= "WHERE ($wheres)";
-        }
-        
-        $statements = $this->connection->prepare(
-            $query
-        ) or die("erro em statements");
-
-        $result = $statements->fetch();
-        return($result);
-    }
-
-    public function done($conditions = array()) {
-        return $this->update($this->table, [ 'list_state' => 'FRIDGE' ], $conditions);
+        return $show;
     }
 
 }
